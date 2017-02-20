@@ -12,13 +12,14 @@ const Util = {
     height: Dimensions.get('window').height,
     rem:Dimensions.get('window').width/750
   },
-  fetchFun(url, type,data, callback) {
+  fetchFun(url, data, callback) {
     const fetchOptions = {
-      method: type,
+      method: "post",
       mode: "cors",
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'customToken':'a6566c0d5a524942b476e8ca29d65334'
       },
       body:JSON.stringify(data)
     };
@@ -34,9 +35,9 @@ const Util = {
         callback(error+"错误");
     })
   },
-  fetchFunGet(url, type, callback) {
+  fetchFunGet(url, callback) {
     const fetchOptions = {
-      method: type,
+      method: "GET",
       mode: "cors",
       headers: {
         'Accept': 'application/json',

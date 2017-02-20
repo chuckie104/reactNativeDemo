@@ -14,7 +14,7 @@ import {
 
 import Util from "../../utils";
 import FriendGroup from "./FriendGroup";
-
+import Helloworld from "./Helloworld";
 export default class Homenav extends Component{
   constructor(props){
     super(props);
@@ -50,12 +50,12 @@ export default class Homenav extends Component{
               selectedTab: 'blueTab',
             });
           }}>
-                      {this._renderContent('#783E33', 'Red Tab', this.state.notifCount)}
+                    <Helloworld></Helloworld>
         </TabBarIOS.Item>
         <TabBarIOS.Item
         icon={require('../images/ic_nav_discover_normal.png')}
          selectedIcon={require('../images/ic_nav_discover_actived_copy.png')}
-         
+
           title="超人圈"
           // badge={this.state.notifCount > 0 ? this.state.notifCount : undefined}
           selected={this.state.selectedTab === 'redTab'}
