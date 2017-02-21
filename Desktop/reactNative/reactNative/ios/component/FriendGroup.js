@@ -11,6 +11,10 @@ import {
   ScrollView
 } from 'react-native';
 
+import Video from 'react-native-video';
+
+
+
 import Util from "../../utils";
 
 export default class FriendGroup extends Component{
@@ -28,7 +32,7 @@ export default class FriendGroup extends Component{
       pageNumber:1
     }
   }
-
+  //初始化数据
   componentWillMount(){
     let self = this;
 
@@ -105,7 +109,6 @@ export default class FriendGroup extends Component{
       if(params == i){
         liked=array[i].liked;
         forumID=array[i].vForum.ForumID;
-
       }
     }
     Util.fetchFun(`http://cloud.siui.com:8070/api/ForumLiker`,{forumID:forumID+"",likeType:!liked},(data)=>{
@@ -125,7 +128,7 @@ export default class FriendGroup extends Component{
   render(){
     let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     let dataSource=ds.cloneWithRows(this.state.dataSource);
-
+    //"http://cloud.siui.com/UploadFiles/1266819/CaseFiles/16082301_MYVDU15825006281/001/20160831_114237.mp4
     return(
       <View style={styles.contain}>
           <View style={styles.flex}>
@@ -152,6 +155,7 @@ export default class FriendGroup extends Component{
                 <Text>好友圈</Text>
               </TouchableOpacity>
           </View>
+
           {this.state.selectAll?
             <GroupList
             dataSource={this.state.dataSource} pageNo={this.state.pageNo+1}
@@ -183,8 +187,6 @@ class GroupList extends Component{
       isRefreshing: false
     }
   }
-
-
 
   //下啦刷新
   _onRefresh(){
@@ -239,6 +241,18 @@ class GroupList extends Component{
      );
    }
 
+   load(data){
+     //获得总时间
+     this.setState({duration: data.duration});
+   }
+   setTime(data){
+     this.setState({currentTime: data.currentTime});
+   }
+
+   pause(){
+     console.log("播放了视频");
+   }
+
   render(){
 
     let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
@@ -273,9 +287,44 @@ class GroupList extends Component{
                     //转换下格式
                     CreateTime=CreateTime.replace(/T/g, ' ');
                     CreateTime=CreateTime.substring(0,19);
-
+                    //这里做视频判断
                     let list =forumFilesURL.map((item,key)=>{
-                    return  <Image key={key} style={[styles.imgShow,{marginRight:Util.size.rem*10}]} source={{uri:item}}/>
+                      let newUrl="";
+                      if(item.indexOf("?")!=-1){
+                        //切割
+                        let urlNameArray = item.split("?");
+                        //拿到图片或者视频路径
+                         newUrl = urlNameArray[0];
+                      }else{
+                        newUrl = item;
+                      }
+                      //图片类型加载图
+                      var type = newUrl.substring(newUrl.lastIndexOf(".")+1);
+                      if(type=="jpg"||type=="png"||type=="gif"){
+                          return  <Image key={key} style={[styles.imgShow,{marginRight:Util.size.rem*10}]} source={{uri:item}}/>
+                      }else{
+                        return(
+                          <View key={key} style={[styles.imgShow,{marginRight:Util.size.rem*10}]}>
+                            <TouchableOpacity
+                            style={styles.videoBtn}
+                            onPress={()=>this.pause()} >
+                              <Image
+                              source={require("../images/page_icon_empty.png")}
+                              style={styles.pauseImg}></Image>
+                            </TouchableOpacity>
+                              <Video
+                             style={[styles.video]}
+                             onLoad={(data)=>this.load(data)}
+                             onProgress={(data)=>this.setTime(data)}
+                             rate={0}
+                             source={{uri:item}}>
+                             </Video>
+                          </View>
+
+                     )
+
+                      }
+
                      }
                    );
                     let imgShow = liked?
@@ -411,7 +460,8 @@ const styles =StyleSheet.create({
     ,imgShow:{
       width:Util.size.rem*190,
       height:Util.size.rem*190,
-      marginBottom:10
+      marginBottom:10,
+      position:"relative"
     },
     botCss:{
       marginTop:10,
@@ -433,6 +483,22 @@ const styles =StyleSheet.create({
       width:Util.size.rem*40,
       height:Util.size.rem*40,
       marginRight:Util.size.rem*14
+    },
+    video:{
+      width:Util.size.rem*190,
+      height:Util.size.rem*190
+    },
+    videoBtn:{
+      position:"absolute",
+      left:Util.size.rem*45,
+      top:Util.size.rem*45,
+      width:Util.size.rem*100,
+      height:Util.size.rem*100,
+      zIndex:2
+    },
+    pauseImg:{
+      width:Util.size.rem*100,
+      height:Util.size.rem*100
     }
 
 })
